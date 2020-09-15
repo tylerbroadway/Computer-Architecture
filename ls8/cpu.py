@@ -84,3 +84,9 @@ class CPU:
 
     def ldi(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
+
+
+cpu = CPU()
+
+cpu.load()
+cpu.run()
