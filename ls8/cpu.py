@@ -73,20 +73,27 @@ class CPU:
 
         print()
 
-    def instructions(self, ir):
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
-        switcher = {
-            0b10000010: self.ldi(operand_a, operand_b),
-            0b01000111: print(self.reg[operand_a]),
-            0b00000001: exit()
-        }
-        return switcher.get(ir, "No instruction")
-
     def run(self):
         """Run the CPU."""
-        ir = self.ram_read(self.pc)
-        self.instructions(ir)
+        running = True
+        debug_count = 0
+
+        while running:
+            debug_count += 1
+            ir = self.ram[self.pc]
+
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            try:
+                operation_output = self.commands[ir](operand_a, operand_b)
+                running = operation_output[1]
+                self.pc += operation_output[0]
+
+            except Exception:
+                print(Exception)
+                print(f"Command: {ir}")
+                sys.exit()
 
     def ldi(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
@@ -95,8 +102,23 @@ class CPU:
         print(self.reg[operand_a])
         return (2, True)
 
+    def hlt(self, operand_a, operand_b):
+        return (0, False)
 
-cpu = CPU()
+    def mul(self, operand_a, operand_b):
+        self.alu("MUL", operand_a, operand_b)
+        return (3, True)
 
-cpu.load()
-cpu.run()
+    def push(self, operand_a, operand_b):
+        self.reg[7] -= 1
+        sp = self.reg[7]
+        value = self.reg[operand_a]
+        self.ram[sp] = value
+        return (2, True)
+
+    def pop(self, operand_a, operand_b):
+        sp = self.reg[7]
+        value = self.ram[sp]
+        self.reg[operand_a] = value
+        self.reg[7] += 1
+        return (2, True)
