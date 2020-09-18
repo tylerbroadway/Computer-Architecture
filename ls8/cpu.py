@@ -27,10 +27,10 @@ class CPU:
         """Load a program into memory."""
         try:
             address = 0
-            with open(sys.argv[1]) as file:
-                for line in file:
-                    split_file = line.split("#")
-                    value = split_file[0].strip()
+            with open(sys.argv[1]) as f:
+                for line in f:
+                    split = line.split("#")
+                    value = split[0].strip()
                     if value == "":
                         continue
                     try:
@@ -55,7 +55,7 @@ class CPU:
             operand_b = self.ram_read(self.pc + 2)
 
             if instruction == HLT:
-                self.running = False
+                running = False
                 self.pc += 1
 
             elif instruction == PRN:
